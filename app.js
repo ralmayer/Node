@@ -3,12 +3,26 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var coolRouter = require('./routes/cool');
 
+var mongoDB = 'mongodb://127.0.0.1/my_database';
+mongoose.connect(mongoDB, { useNewUrlParser: true });
+
 var app = express();
+var db = mongoose.connection;
+
+var Schema = mongoose.Schema;
+
+var SomeModelSchema = new Schema({
+  a_string: String,
+  a_date: Date
+});
+
+var SomeModel = mongoose.model('SomeModel', SomeModelSchema );
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -39,5 +53,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 module.exports = app;
