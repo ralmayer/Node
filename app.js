@@ -9,20 +9,12 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var coolRouter = require('./routes/cool');
 
-var mongoDB = 'mongodb://127.0.0.1/my_database';
+var mongoDB = 'mongodb+srv://amygdala:kevinshields@cluster0-9lp4q.mongodb.net/local_library?retryWrites=true&w=majority';
 mongoose.connect(mongoDB, { useNewUrlParser: true });
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 var app = express();
-var db = mongoose.connection;
-
-var Schema = mongoose.Schema;
-
-var SomeModelSchema = new Schema({
-  a_string: String,
-  a_date: Date
-});
-
-var SomeModel = mongoose.model('SomeModel', SomeModelSchema );
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -53,7 +45,5 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 module.exports = app;
