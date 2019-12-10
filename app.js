@@ -7,7 +7,6 @@ var mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var coolRouter = require('./routes/cool');
 var catalogRouter = require('./routes/catalog');  //Import routes for "catalog" area of site
 
 var mongoDB = 'mongodb+srv://amygdala:kevinshields@cluster0-9lp4q.mongodb.net/local_library?retryWrites=true&w=majority';
@@ -29,7 +28,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/users/cool', coolRouter)
 app.use('/catalog', catalogRouter);  // Add catalog routes to middleware chain.
 
 // catch 404 and forward to error handler
