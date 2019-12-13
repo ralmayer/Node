@@ -43,6 +43,12 @@ AuthorSchema
   return moment(this.date_of_death).format('MMMM Do, YYYY');
 });
 
+AuthorSchema
+.virtual('lifespan')
+.get(function () {
+  return `${date_of_birth_formatter} – ${date_of_death_formatted}`;
+});
+
 
 // Virtual for author's lifespan
 AuthorSchema
