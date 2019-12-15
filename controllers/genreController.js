@@ -1,7 +1,7 @@
-const validator = require('express-validator');
 var Genre = require('../models/genre');
 var Book = require('../models/book');
 var async = require('async');
+const validator = require('express-validator');
 
 // Display list of all Genre.
 exports.genre_list = function(req, res, next) {
@@ -51,6 +51,8 @@ exports.genre_create_post =  [
    
     // Validate that the name field is not empty.
     validator.body('name', 'Genre name required').isLength({ min: 1 }).trim(),
+
+    validator.body('name', 'Too Long').isLength({ max: 10 }).trim(),
     
     // Sanitize (escape) the name field.
     validator.sanitizeBody('name').escape(),
