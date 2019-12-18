@@ -17,8 +17,10 @@ block content
       span.text-warning #{bookInstance.status} 
       
   if bookInstance.status!='Available'
-    p #[strong Due back:] #{bookInstance.due_back_formatted}
+    p #[strong Due back:] #{bookInstance.due_back_yyyy_mm_dd}
 
   hr
   p
-    a(href=bookInstance.url+'/delete') Delete instance
+    a(href=bookInstance.url+'/delete') Delete finstance
+  p
+    a(href=bookInstance.url+'/update') Update instance
