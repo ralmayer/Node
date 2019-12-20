@@ -10,7 +10,9 @@ exports.genre_list = function (req, res, next) {
   Genre.find()
     .sort([['name', 'ascending']])
     .exec(function (err, list_genre) {
-      if (err) return next(err)
+      if (err) {
+        debug('list error:' + err);
+        return next(err)}
       res.render('genre_list', { title: 'Genre List', genre_list: list_genre })
     })
 };
@@ -30,10 +32,13 @@ exports.genre_detail = function (req, res, next) {
     },
 
   }, function (err, results) {
-    if (err) { return next(err); }
+    if (err) { 
+      debug('detail error:' + err);
+      return next(err); }
     if (results.genre == null) { // No results.
       var err = new Error('Genre not found');
       err.status = 404;
+      debug('detail error:' + err);
       return next(err);
     }
     // Successful, so render
@@ -80,7 +85,9 @@ exports.genre_create_post = [
       // Check if Genre with same name already exists.
       Genre.findOne({ 'name': req.body.name })
         .exec(function (err, found_genre) {
-          if (err) { return next(err); }
+          if (err) { 
+            debug('create post error:' + err);
+            return next(err); }
 
           if (found_genre) {
             // Genre exists, redirect to its detail page.
@@ -89,7 +96,9 @@ exports.genre_create_post = [
           else {
 
             genre.save(function (err) {
-              if (err) { return next(err); }
+              if (err) { 
+                debug('create post error:' + err);
+                return next(err); }
               // Genre saved. Redirect to genre detail page.
               res.redirect(genre.url);
             });
@@ -115,10 +124,13 @@ exports.genre_delete_get = function (req, res, next) {
     },
 
   }, function (err, results) {
-    if (err) { return next(err); }
+    if (err) { 
+      debug('delete get error:' + err);
+      return next(err); }
     if (results.genre == null) { // No results.
       var err = new Error('Genre not found');
       err.status = 404;
+      debug('delete get error:' + err);
       return next(err);
     }
     // Successful, so render
@@ -138,14 +150,18 @@ exports.genre_delete_post = function (req, res, next) {
       Book.find({ 'genre': req.params.id }).exec(callback)
     },
   }, function (err, results) {
-    if (err) { return next(err); }
+    if (err) { 
+      debug('delete post error:' + err);
+      return next(err); }
     // Success
     if (results.books.length > 0) {
       res.render('genre_delete', { title: 'Delete Genre', genre: results.genre, genre_books: results.genre_books });
       return;
     } else {
       Genre.findByIdAndRemove(req.body.id, function deleteGenre(err) {
-        if (err) { return next(err); }
+        if (err) { 
+          debug('delete post error:' + err);
+          return next(err); }
         // Success - go to author list
         res.redirect('/catalog/genres')
       })
@@ -158,10 +174,13 @@ exports.genre_delete_post = function (req, res, next) {
 exports.genre_update_get = function (req, res) {
 
   Genre.findById(req.params.id, function (err, genre) {
-    if (err) { return next(err); }
+    if (err) { 
+      debug('update get error:' + err);
+      return next(err); }
     if (genre == null) { // No results.
       var err = new Error('Genre not found');
       err.status = 404;
+      debug('update get error:' + err);
       return next(err);
     }
     // Success.
@@ -202,7 +221,9 @@ exports.genre_update_post = function (req, res) {
         else {
             // Data from form is valid. Update the record.
             Genre.findByIdAndUpdate(req.params.id, genre, {}, function (err,thegenre) {
-                if (err) { return next(err); }
+                if (err) { 
+                  debug('update post error:' + err);
+                  return next(err); }
                    // Successful - redirect to genre detail page.
                    res.redirect(thegenre.url);
                 });
