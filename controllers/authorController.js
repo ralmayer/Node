@@ -3,6 +3,7 @@ var async = require('async');
 var Book = require('../models/book');
 const { body, validationResult } = require('express-validator');
 const { sanitizeBody } = require('express-validator');
+var debug = require('debug')('author');
 
 // Display list of all Authors.
 exports.author_list = function (req, res, next) {
@@ -10,7 +11,9 @@ exports.author_list = function (req, res, next) {
     Author.find()
         .sort([['family_name', 'ascending']])
         .exec(function (err, list_authors) {
-            if (err) { return next(err); }
+            if (err) { 
+                debug('list error:' + err);
+                return next(err); }
             //Successful, so render
             res.render('author_list', { title: 'Author List', author_list: list_authors });
         });
@@ -30,10 +33,13 @@ exports.author_detail = function (req, res, next) {
                 .exec(callback)
         },
     }, function (err, results) {
-        if (err) { return next(err); } // Error in API usage.
+        if (err) { 
+            debug('detail error:' + err);
+            return next(err); } // Error in API usage.
         if (results.author == null) { // No results.
             var err = new Error('Author not found');
             err.status = 404;
+            debug('detail results error:' + err);
             return next(err);
         }
         // Successful, so render.
@@ -87,7 +93,9 @@ exports.author_create_post = [
                     date_of_death: req.body.date_of_death
                 });
             author.save(function (err) {
-                if (err) { return next(err); }
+                if (err) { 
+                    debug('create save error:' + err);
+                    return next(err); }
                 // Successful - redirect to new author record.
                 res.redirect(author.url);
             });
@@ -106,7 +114,9 @@ exports.author_delete_get = function (req, res, next) {
             Book.find({ 'author': req.params.id }).exec(callback)
         },
     }, function (err, results) {
-        if (err) { return next(err); }
+        if (err) { 
+            debug('delete get error:' + err);
+            return next(err); }
         if (results.author == null) { // No results.
             res.redirect('/catalog/authors');
         }
@@ -127,7 +137,9 @@ exports.author_delete_post = function (req, res, next) {
             Book.find({ 'author': req.body.authorid }).exec(callback)
         },
     }, function (err, results) {
-        if (err) { return next(err); }
+        if (err) { 
+            debug('delete post error:' + err);
+            return next(err); }
         // Success
         if (results.authors_books.length > 0) {
             // Author has books. Render in same way as for GET route.
@@ -137,7 +149,9 @@ exports.author_delete_post = function (req, res, next) {
         else {
             // Author has no books. Delete object and redirect to the list of authors.
             Author.findByIdAndRemove(req.body.authorid, function deleteAuthor(err) {
-                if (err) { return next(err); }
+                if (err) { 
+                    debug('delete post find and remove error:' + err);
+                    return next(err); }
                 // Success - go to author list
                 res.redirect('/catalog/authors')
             })
@@ -149,7 +163,9 @@ exports.author_delete_post = function (req, res, next) {
 exports.author_update_get = function (req, res, next) {
 
     Author.findById(req.params.id, function (err, author) {
-        if (err) { return next(err); }
+        if (err) { 
+            debug('update get error:' + err);
+            return next(err); }
         if (author == null) { // No results.
             var err = new Error('Genre not found');
             err.status = 404;
@@ -202,7 +218,9 @@ exports.author_update_post = [
         else {
             // Data from form is valid. Update the record.
             Author.findByIdAndUpdate(req.params.id, author, {}, function (err, theauthor) {
-                if (err) { return next(err); }
+                if (err) { 
+                    debug('update post find and update error:' + err);
+                    return next(err); }
                 // Successful - redirect to genre detail page.
                 res.redirect(theauthor.url);
             });
