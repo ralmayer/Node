@@ -12,7 +12,6 @@ var BookInstanceSchema = new Schema(
   }
 );
 
-// Virtual for bookinstance's URL
 BookInstanceSchema
 .virtual('url')
 .get(function () {
@@ -31,5 +30,4 @@ BookInstanceSchema
   return moment(this.due_back).format('YYYY-MM-DD');
 });
 
-//Export model
 module.exports = mongoose.model('BookInstance', BookInstanceSchema);
