@@ -12,7 +12,12 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var catalogRouter = require('./routes/catalog');  //Import routes for "catalog" area of site
 
-var mongoDB = 'mongodb+srv://amygdala:kevinshields@cluster0-9lp4q.mongodb.net/local_library?retryWrites=true&w=majority';
+//var mongoDB = 'mongodb+srv://amygdala:kevinshields@cluster0-9lp4q.mongodb.net/local_library?retryWrites=true&w=majority';
+// Set up mongoose connection
+var dev_db_url = 'mongodb+srv://amygdala:kevinshields@cluster0-9lp4q.mongodb.net/local_library?retryWrites=true'
+var mongoDB = process.env.MONGODB_URI || dev_db_url;
+
+
 mongoose.connect(mongoDB, { useNewUrlParser: true });
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
