@@ -3,6 +3,7 @@ var Book = require('../models/book');
 var async = require('async');
 const { body,validationResult } = require('express-validator');
 const { sanitizeBody } = require('express-validator');
+var debug = require('debug')('bookinstance');
 
 // Display list of all BookInstances.
 exports.bookinstance_list = function(req, res, next) {
