@@ -5,7 +5,6 @@ const { body, validationResult } = require('express-validator');
 const { sanitizeBody } = require('express-validator');
 var debug = require('debug')('author');
 
-// Display list of all Authors.
 exports.author_list = function (req, res, next) {
 
     Author.find()
@@ -20,7 +19,6 @@ exports.author_list = function (req, res, next) {
 
 };
 
-// Display detail page for a specific Author.
 exports.author_detail = function (req, res, next) {
 
     async.parallel({
@@ -35,25 +33,22 @@ exports.author_detail = function (req, res, next) {
     }, function (err, results) {
         if (err) { 
             debug('detail error:' + err);
-            return next(err); } // Error in API usage.
-        if (results.author == null) { // No results.
+            return next(err); } 
+        if (results.author == null) { 
             var err = new Error('Author not found');
             err.status = 404;
             debug('detail results error:' + err);
             return next(err);
         }
-        // Successful, so render.
         res.render('author_detail', { title: 'Author Detail', author: results.author, author_books: results.authors_books });
     });
 
 };
 
-// Display Author create form on GET.
 exports.author_create_get = function (req, res, next) {
     res.render('author_form', { title: 'Create Author' });
 };
 
-// Handle Author create on POST.
 exports.author_create_post = [
 
     // Validate fields.
@@ -64,16 +59,13 @@ exports.author_create_post = [
     body('date_of_birth', 'Invalid date of birth').optional({ checkFalsy: true }).isISO8601(),
     body('date_of_death', 'Invalid date of death').optional({ checkFalsy: true }).isISO8601(),
 
-    // Sanitize fields.
     sanitizeBody('first_name').escape(),
     sanitizeBody('family_name').escape(),
     sanitizeBody('date_of_birth').toDate(),
     sanitizeBody('date_of_death').toDate(),
 
-    // Process request after validation and sanitization.
     (req, res, next) => {
 
-        // Extract the validation errors from a request.
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -82,9 +74,7 @@ exports.author_create_post = [
             return;
         }
         else {
-            // Data from form is valid.
-
-            // Create an Author object with escaped and trimmed data.
+            
             var author = new Author(
                 {
                     first_name: req.body.first_name,
@@ -96,14 +86,12 @@ exports.author_create_post = [
                 if (err) { 
                     debug('create save error:' + err);
                     return next(err); }
-                // Successful - redirect to new author record.
                 res.redirect(author.url);
             });
         }
     }
 ];
 
-// Display Author delete form on GET.
 exports.author_delete_get = function (req, res, next) {
 
     async.parallel({
@@ -117,16 +105,16 @@ exports.author_delete_get = function (req, res, next) {
         if (err) { 
             debug('delete get error:' + err);
             return next(err); }
-        if (results.author == null) { // No results.
+        if (results.author == null) { 
             res.redirect('/catalog/authors');
         }
-        // Successful, so render.
+
         res.render('author_delete', { title: 'Delete Author', author: results.author, author_books: results.authors_books });
     });
 
 };
 
-// Handle Author delete on POST.
+
 exports.author_delete_post = function (req, res, next) {
 
     async.parallel({
@@ -140,33 +128,32 @@ exports.author_delete_post = function (req, res, next) {
         if (err) { 
             debug('delete post error:' + err);
             return next(err); }
-        // Success
+
         if (results.authors_books.length > 0) {
-            // Author has books. Render in same way as for GET route.
+
             res.render('author_delete', { title: 'Delete Author', author: results.author, author_books: results.authors_books });
             return;
         }
         else {
-            // Author has no books. Delete object and redirect to the list of authors.
+
             Author.findByIdAndRemove(req.body.authorid, function deleteAuthor(err) {
                 if (err) { 
                     debug('delete post find and remove error:' + err);
                     return next(err); }
-                // Success - go to author list
+
                 res.redirect('/catalog/authors')
             })
         }
     });
 };
 
-// Display Author update form on GET.
 exports.author_update_get = function (req, res, next) {
 
     Author.findById(req.params.id, function (err, author) {
         if (err) { 
             debug('update get error:' + err);
             return next(err); }
-        if (author == null) { // No results.
+        if (author == null) { 
             var err = new Error('Genre not found');
             err.status = 404;
             return next(err);
@@ -176,10 +163,9 @@ exports.author_update_get = function (req, res, next) {
 
 };
 
-// Handle Author update on POST.
+
 exports.author_update_post = [
 
-    // Validate fields.
     body('first_name').isLength({ min: 1 }).trim().withMessage('First name must be specified.')
         .isAlphanumeric().withMessage('First name has non-alphanumeric characters.'),
     body('family_name').isLength({ min: 1 }).trim().withMessage('Family name must be specified.')
@@ -187,19 +173,16 @@ exports.author_update_post = [
     body('date_of_birth', 'Invalid date of birth').optional({ checkFalsy: true }).isISO8601(),
     body('date_of_death', 'Invalid date of death').optional({ checkFalsy: true }).isISO8601(),
 
-    // Sanitize fields.
+
     sanitizeBody('first_name').escape(),
     sanitizeBody('family_name').escape(),
     sanitizeBody('date_of_birth').toDate(),
     sanitizeBody('date_of_death').toDate(),
 
-    // Process request after validation and sanitization.
     (req, res, next) => {
 
-        // Extract the validation errors from a request.
         const errors = validationResult(req);
 
-        // Create Author object with escaped and trimmed data (and the old id!)
         var author = new Author(
             {
                 first_name: req.body.first_name,
@@ -211,17 +194,14 @@ exports.author_update_post = [
         );
 
         if (!errors.isEmpty()) {
-            // There are errors. Render the form again with sanitized values and error messages.
             res.render('author_form', { title: 'Update Author', author: author, errors: errors.array() });
             return;
         }
         else {
-            // Data from form is valid. Update the record.
             Author.findByIdAndUpdate(req.params.id, author, {}, function (err, theauthor) {
                 if (err) { 
                     debug('update post find and update error:' + err);
                     return next(err); }
-                // Successful - redirect to genre detail page.
                 res.redirect(theauthor.url);
             });
         }
